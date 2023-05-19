@@ -1,8 +1,12 @@
 use crate::constants;
 use crate::conversion::to_i32;
 use crate::StrError;
-use plotpy::{Canvas, Plot, Text};
+
+#[cfg(feature = "plotpy")]
 use std::collections::HashMap;
+
+#[cfg(feature = "plotpy")]
+use plotpy::{Canvas, Plot, Text};
 
 #[repr(C)]
 pub(crate) struct ExtTetgen {
@@ -555,6 +559,7 @@ impl Tetgen {
         unsafe { tet_get_tetrahedron_attribute(self.ext_tetgen, to_i32(index)) as usize }
     }
 
+    #[cfg(feature = "plotpy")]
     /// Draws wireframe representing the edges of tetrahedra
     pub fn draw_wireframe(
         &self,
@@ -694,6 +699,8 @@ impl Tetgen {
 mod tests {
     use super::Tetgen;
     use crate::{write_tet_vtu, StrError};
+
+    #[cfg(feature = "plotpy")]
     use plotpy::Plot;
 
     #[test]
@@ -835,12 +842,15 @@ mod tests {
         tetgen.generate_delaunay(false)?;
         assert_eq!(tetgen.ntet(), 1);
         assert_eq!(tetgen.npoint(), 4);
-        let mut plot = Plot::new();
-        tetgen.draw_wireframe(&mut plot, true, true, true, true, None, None, None);
-        if false {
-            plot.set_equal_axes(true)
-                .set_figure_size_points(600.0, 600.0)
-                .save("/tmp/tritet/tetgen_draw_wireframe_works.svg")?;
+        #[cfg(feature = "plotpy")]
+        {
+            let mut plot = Plot::new();
+            tetgen.draw_wireframe(&mut plot, true, true, true, true, None, None, None);
+            if false {
+                plot.set_equal_axes(true)
+                    .set_figure_size_points(600.0, 600.0)
+                    .save("/tmp/tritet/tetgen_draw_wireframe_works.svg")?;
+            }
         }
         Ok(())
     }
@@ -860,12 +870,15 @@ mod tests {
         tetgen.generate_delaunay(false)?;
         assert_eq!(tetgen.ntet(), 6);
         assert_eq!(tetgen.npoint(), 8);
-        let mut plot = Plot::new();
-        tetgen.draw_wireframe(&mut plot, true, true, true, true, None, None, None);
-        if false {
-            plot.set_equal_axes(true)
-                .set_figure_size_points(600.0, 600.0)
-                .save("/tmp/tritet/tetgen_test_delaunay_1.svg")?;
+        #[cfg(feature = "plotpy")]
+        {
+            let mut plot = Plot::new();
+            tetgen.draw_wireframe(&mut plot, true, true, true, true, None, None, None);
+            if false {
+                plot.set_equal_axes(true)
+                    .set_figure_size_points(600.0, 600.0)
+                    .save("/tmp/tritet/tetgen_test_delaunay_1.svg")?;
+            }
         }
         Ok(())
     }
@@ -968,13 +981,17 @@ mod tests {
         tetgen.generate_mesh(false, false, None, None)?;
         assert_eq!(tetgen.ntet(), 116);
         assert_eq!(tetgen.npoint(), 50);
-        let mut plot = Plot::new();
-        tetgen.draw_wireframe(&mut plot, true, true, true, true, None, None, None);
-        if false {
-            write_tet_vtu(&tetgen, "/tmp/tritet/tetgen_test_mesh_1.vtu")?;
-            plot.set_equal_axes(true)
-                .set_figure_size_points(600.0, 600.0)
-                .save("/tmp/tritet/tetgen_test_mesh_1.svg")?;
+
+        #[cfg(feature = "plotpy")]
+        {
+            let mut plot = Plot::new();
+            tetgen.draw_wireframe(&mut plot, true, true, true, true, None, None, None);
+            if false {
+                write_tet_vtu(&tetgen, "/tmp/tritet/tetgen_test_mesh_1.vtu")?;
+                plot.set_equal_axes(true)
+                    .set_figure_size_points(600.0, 600.0)
+                    .save("/tmp/tritet/tetgen_test_mesh_1.svg")?;
+            }
         }
         Ok(())
     }

@@ -1,8 +1,12 @@
 use crate::constants;
 use crate::conversion::to_i32;
 use crate::StrError;
-use plotpy::{Canvas, Curve, Plot, PolyCode, Text};
+
+#[cfg(feature = "plotpy")]
 use std::collections::HashMap;
+
+#[cfg(feature = "plotpy")]
+use plotpy::{Canvas, Curve, Plot, PolyCode, Text};
 
 #[repr(C)]
 pub(crate) struct ExtTriangle {
@@ -58,7 +62,6 @@ pub enum VoronoiEdgePoint {
 /// ## Delaunay triangulation
 ///
 /// ```
-/// use plotpy::Plot;
 /// use tritet::{StrError, Triangle};
 ///
 /// fn main() -> Result<(), StrError> {
@@ -82,7 +85,7 @@ pub enum VoronoiEdgePoint {
 ///     triangle.generate_delaunay(false)?;
 ///
 ///     // draw triangles
-///     let mut plot = Plot::new();
+///     // let mut plot = Plot::new();
 ///     // triangle.draw_triangles(&mut plot, true, true, true, true, None, None, None);
 ///     // plot.set_equal_axes(true)
 ///     //     .set_figure_size_points(600.0, 600.0)
@@ -96,7 +99,6 @@ pub enum VoronoiEdgePoint {
 /// ## Voronoi tessellation
 ///
 /// ```
-/// use plotpy::Plot;
 /// use tritet::{StrError, Triangle};
 ///
 /// fn main() -> Result<(), StrError> {
@@ -120,7 +122,7 @@ pub enum VoronoiEdgePoint {
 ///     triangle.generate_voronoi(false)?;
 ///
 ///     // draw Voronoi diagram
-///     let mut plot = Plot::new();
+///     // let mut plot = Plot::new();
 ///     // triangle.draw_voronoi(&mut plot);
 ///     // plot.set_equal_axes(true)
 ///     //     .set_figure_size_points(600.0, 600.0)
@@ -134,7 +136,6 @@ pub enum VoronoiEdgePoint {
 /// ## Mesh generation
 ///
 /// ```
-/// use plotpy::Plot;
 /// use tritet::{StrError, Triangle};
 ///
 /// fn main() -> Result<(), StrError> {
@@ -182,7 +183,7 @@ pub enum VoronoiEdgePoint {
 ///     assert_eq!(triangle.ntriangle(), 14);
 ///
 ///     // draw mesh
-///     let mut plot = Plot::new();
+///     // let mut plot = Plot::new();
 ///     // triangle.draw_triangles(&mut plot, true, true, true, true, None, None, None);
 ///     // plot.set_equal_axes(true)
 ///     //     .set_figure_size_points(600.0, 600.0)
@@ -665,6 +666,7 @@ impl Triangle {
         }
     }
 
+    #[cfg(feature = "plotpy")]
     /// Draw triangles
     pub fn draw_triangles(
         &self,
@@ -789,6 +791,7 @@ impl Triangle {
         }
     }
 
+    #[cfg(feature = "plotpy")]
     /// Draws Voronoi diagram
     pub fn draw_voronoi(&self, plot: &mut Plot) {
         if self.voronoi_npoint() < 1 || self.voronoi_nedge() < 1 {
@@ -873,6 +876,8 @@ impl Triangle {
 mod tests {
     use super::Triangle;
     use crate::{StrError, VoronoiEdgePoint};
+
+    #[cfg(feature = "plotpy")]
     use plotpy::Plot;
 
     #[test]
@@ -1131,16 +1136,21 @@ mod tests {
             .set_segment(1, 1, 2)?
             .set_segment(2, 2, 0)?;
         triangle.generate_mesh(false, true, Some(0.25), None)?;
-        let mut plot = Plot::new();
-        triangle.draw_triangles(&mut plot, true, true, true, true, None, None, None);
-        if false {
-            plot.set_equal_axes(true)
-                .set_figure_size_points(600.0, 600.0)
-                .save("/tmp/tritet/triangle_draw_triangles_works.svg")?;
+
+        #[cfg(feature = "plotpy")]
+        {
+            let mut plot = Plot::new();
+            triangle.draw_triangles(&mut plot, true, true, true, true, None, None, None);
+            if false {
+                plot.set_equal_axes(true)
+                    .set_figure_size_points(600.0, 600.0)
+                    .save("/tmp/tritet/triangle_draw_triangles_works.svg")?;
+            }
         }
         Ok(())
     }
 
+    #[cfg(feature = "plotpy")]
     #[test]
     fn draw_voronoi_works() -> Result<(), StrError> {
         let mut triangle = Triangle::new(5, None, None, None)?;
@@ -1152,12 +1162,16 @@ mod tests {
             .set_point(4, 0.5, 0.5)?;
         triangle.generate_voronoi(false)?;
         assert_eq!(triangle.voronoi_npoint(), 4);
-        let mut plot = Plot::new();
-        triangle.draw_voronoi(&mut plot);
-        if false {
-            plot.set_equal_axes(true)
-                .set_figure_size_points(600.0, 600.0)
-                .save("/tmp/tritet/triangle_draw_voronoi_works.svg")?;
+
+        #[cfg(feature = "plotpy")]
+        {
+            let mut plot = Plot::new();
+            triangle.draw_voronoi(&mut plot);
+            if false {
+                plot.set_equal_axes(true)
+                    .set_figure_size_points(600.0, 600.0)
+                    .save("/tmp/tritet/triangle_draw_voronoi_works.svg")?;
+            }
         }
         Ok(())
     }
@@ -1179,12 +1193,16 @@ mod tests {
         assert_eq!(triangle.ntriangle(), 2);
         assert_eq!(triangle.triangle_attribute(0), 1);
         assert_eq!(triangle.triangle_attribute(1), 1);
-        let mut plot = Plot::new();
-        triangle.draw_triangles(&mut plot, true, true, true, true, None, None, None);
-        if false {
-            plot.set_equal_axes(true)
-                .set_figure_size_points(600.0, 600.0)
-                .save("/tmp/tritet/triangle_mesh_3_works.svg")?;
+
+        #[cfg(feature = "plotpy")]
+        {
+            let mut plot = Plot::new();
+            triangle.draw_triangles(&mut plot, true, true, true, true, None, None, None);
+            if false {
+                plot.set_equal_axes(true)
+                    .set_figure_size_points(600.0, 600.0)
+                    .save("/tmp/tritet/triangle_mesh_3_works.svg")?;
+            }
         }
         Ok(())
     }
@@ -1223,12 +1241,16 @@ mod tests {
         assert_eq!(triangle.ntriangle(), 14);
         assert_eq!(triangle.triangle_attribute(0), 1);
         assert_eq!(triangle.triangle_attribute(12), 2);
-        let mut plot = Plot::new();
-        triangle.draw_triangles(&mut plot, true, true, true, true, Some(12.0), Some(20.0), None);
-        if false {
-            plot.set_equal_axes(true)
-                .set_figure_size_points(600.0, 600.0)
-                .save("/tmp/tritet/triangle_mesh_4_works.svg")?;
+
+        #[cfg(feature = "plotpy")]
+        {
+            let mut plot = Plot::new();
+            triangle.draw_triangles(&mut plot, true, true, true, true, Some(12.0), Some(20.0), None);
+            if false {
+                plot.set_equal_axes(true)
+                    .set_figure_size_points(600.0, 600.0)
+                    .save("/tmp/tritet/triangle_mesh_4_works.svg")?;
+            }
         }
         Ok(())
     }
